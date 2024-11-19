@@ -37,14 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # installed apps
     'quiz',
     'api',
+]
 
-    # third party package
+THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
 ]
+
+INSTALLED_APPS += THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
