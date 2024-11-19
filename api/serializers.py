@@ -1,6 +1,17 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from quiz.models import Question, Choice
+from .models import PracticeHistory
+
+class PracticeHistorySerializer(serializers.ModelSerializer):
+    question_text = serializers.CharField(source='question.text')
+    chosen_answer_text = serializers.CharField(source='chosen_answer.text')
+    is_correct = serializers.BooleanField()
+
+    class Meta:
+        model = PracticeHistory
+        fields = ['id', 'question_text', 'chosen_answer_text',
+                  'is_correct', 'attempted_at']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -32,7 +43,6 @@ class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
         fields = ['id', 'text', 'is_correct']
-
 
 class QuestionSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True)
