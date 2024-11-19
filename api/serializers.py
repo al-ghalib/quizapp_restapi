@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-
+from quiz.models import Question, Choice
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -27,3 +27,39 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
         )
         return user
+
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = ['id', 'text', 'is_correct']
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    choices = ChoiceSerializer(many=True)
+
+    class Meta:
+        model = Question
+        fields = ['id', 'text', 'choices']
+
+    def validate_choices(self, value):
+        if len(value) < 2:
+            raise serializers.ValidationError(
+                "A question must have at least two choices.")
+        correct_choices = [
+            choice for choice in value if choice.get('is_correct')]
+        if len(correct_choices) != 1:
+            raise serializers.ValidationError(
+                "There must be exactly one correct choice.")
+        return value
+
+    def create(self, validated_data):
+        choices_data = validated_data.pop('choices')
+        question = Question.objects.create(**validated_data)
+
+        # Bulk create choices for the question
+        choices = [
+            Choice(question=question, **choice_data) for choice_data in choices_data
+        ]
+        Choice.objects.bulk_create(choices)
+
+        return question
