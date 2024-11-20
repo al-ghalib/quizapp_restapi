@@ -24,7 +24,6 @@ This is a simplified API implementation for a platform where students can practi
 ## Installation
 
 ### Prerequisites
-
 - Python 3.10+
 - Virtual Environment
 - `pip` for managing Python packages
@@ -32,15 +31,11 @@ This is a simplified API implementation for a platform where students can practi
 ### Steps
 
 1. Clone the repository:
-
    ```bash
    git clone https://github.com/al-ghalib/quizapp_restapi.git
    cd quizapp_restapi
 
-   ```
-
 2. Create and activate a virtual environment:
-
    ```bash
    pip install virtualenv
    virtualenv myenv
