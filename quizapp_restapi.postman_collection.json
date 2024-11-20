@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "410fe0f5-bf16-494d-b1dc-c8eeeb2a43f3",
+		"name": "quizapp_restapi",
+		"description": "This project provides a RESTful API for a quiz platform, allowing users to register, view questions, submit answers, and track their practice history. Built using Django, the API supports functionalities like question management, answer submission, and user authentication.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "32714621"
+	},
+	"item": [
+		{
+			"name": "/api/v1/",
+			"item": [
+				{
+					"name": "Authorized",
+					"item": [
+						{
+							"name": "register",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 401\", function () {\r",
+											"    pm.expect(pm.response.code).to.equal(401);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"pm.test(\"Response has the required fields - detail, code, and messages\", function () {\r",
+											"    const responseData = pm.response.json();\r",
+											"    \r",
+											"    pm.expect(responseData).to.be.an('object');\r",
+											"    pm.expect(responseData.detail).to.exist;\r",
+											"    pm.expect(responseData.code).to.exist;\r",
+											"    pm.expect(responseData.messages).to.exist;\r",
+											"});\r",
+											"\r",
+											"\r",
+											"pm.test(\"Validate token_class, token_type, and message in the 'messages' array\", function () {\r",
+											"    const responseData = pm.response.json();\r",
+											"    \r",
+											"    pm.expect(responseData).to.be.an('object');\r",
+											"    pm.expect(responseData.messages).to.be.an('array').that.is.not.empty;\r",
+											"\r",
+											"    responseData.messages.forEach(function(message) {\r",
+											"        pm.expect(message.token_class).to.exist;\r",
+											"        pm.expect(message.token_type).to.exist;\r",
+											"        pm.expect(message.message).to.exist;\r",
+											"    });\r",
+											"});\r",
+											"\r",
+											"\r",
+											"pm.test(\"Response time is less than 500ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"aurko\",\r\n    \"email\": \"aurko@gmail.com\",\r\n    \"password\": \"aurko1234\",\r\n    \"password2\": \"aurko1234\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_url}}/api/v1/register/",
+								"description": "### Register User\n\nThis endpoint allows the user to register by providing username, email, password, and password confirmation.\n\n#### Request Body\n\n- username (string, required): The username of the user.\n    \n- email (string, required): The email address of the user.\n    \n- password (string, required): The password for the user account.\n    \n- password2 (string, required): Confirmation of the password.\n    \n\n#### Response\n\nThe response is in JSON format and follows the schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"detail\": {\n      \"type\": \"string\"\n    },\n    \"code\": {\n      \"type\": \"string\"\n    },\n    \"messages\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"token_class\": {\n            \"type\": \"string\"\n          },\n          \"token_type\": {\n            \"type\": \"string\"\n          },\n          \"message\": {\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
+							},
+							"response": []
+						},
+						{
+							"name": "questions/",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n        \"text\": \"What is the boiling point of water at sea level?\",\r\n        \"choices\": [\r\n            {\r\n                \"text\": \"90°C\",\r\n                \"is_correct\": false\r\n            },\r\n            {\r\n                \"text\": \"100°C\",\r\n                \"is_correct\": true\r\n            },\r\n            {\r\n                \"text\": \"110°C\",\r\n                \"is_correct\": false\r\n            },\r\n            {\r\n                \"text\": \"120°C\",\r\n                \"is_correct\": false\r\n            }\r\n        ]\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_url}}/api/v1/questions/create",
+								"description": "### Create New Question\n\nThis endpoint allows you to create a new question.\n\n#### Request Body\n\n- text (string, required): The text of the question.\n    \n- choices (array, required): An array of choices for the question, each containing:\n    \n    - text (string, required): The text of the choice.\n        \n    - is_correct (boolean, required): Indicates whether the choice is correct or not.\n        \n\n#### Response\n\nThe response of this request follows the JSON schema below:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"id\": {\n      \"type\": \"string\"\n    },\n    \"text\": {\n      \"type\": \"string\"\n    },\n    \"choices\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n          },\n          \"text\": {\n            \"type\": \"string\"\n          },\n          \"is_correct\": {\n            \"type\": \"boolean\"\n          }\n        }\n      }\n    }\n  }\n}\n\n ```"
+							},
+							"response": [
+								{
+									"name": "questions/",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"text\": \"What is the capital of France?\",\r\n    \"choices\": [\r\n        {\"text\": \"Berlin\", \"is_correct\": false},\r\n        {\"text\": \"Madrid\", \"is_correct\": false},\r\n        {\"text\": \"Rome\", \"is_correct\": false}\r\n    ]\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "http://127.0.0.1:8000/api/v1/questions/create"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Questions less than two choices",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"text\": \"What is the capital of Canada?\",\r\n    \"choices\": [\r\n        {\"text\": \"Ottawa\", \"is_correct\": true}\r\n    ]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/questions/create"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Multiple Correct Choices",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"text\": \"Which of the following are prime numbers?\",\r\n    \"choices\": [\r\n        {\"text\": \"2\", \"is_correct\": true},\r\n        {\"text\": \"3\", \"is_correct\": true},\r\n        {\"text\": \"4\", \"is_correct\": false},\r\n        {\"text\": \"5\", \"is_correct\": true}\r\n    ]\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/questions/create"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Missing is_correct field",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"text\": \"What is 5 + 3?\",\r\n    \"choices\": [\r\n        {\"text\": \"7\"},\r\n        {\"text\": \"8\", \"is_correct\": true},\r\n        {\"text\": \"9\", \"is_correct\": false}\r\n    ]\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/questions/create"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "questions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/api/v1/questions",
+								"description": "The endpoint makes an HTTP GET request to retrieve a list of questions from the API. The response returned a status code of 401 and a JSON object with the following structure:\n\n``` json\n{\n  \"detail\": \"\",\n  \"code\": \"\",\n  \"messages\": [\n    {\n      \"token_class\": \"\",\n      \"token_type\": \"\",\n      \"message\": \"\"\n    }\n  ]\n}\n\n ```\n\nThis JSON schema represents the structure of the response returned by the API endpoint."
+							},
+							"response": []
+						},
+						{
+							"name": "questions/{{question_id}}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{base_url}}/api/v1/questions/{{question_id}}",
+								"description": "\nThe API endpoint retrieves a specific question identified by the question ID. \n\n### Response\nThe response will be in JSON format with the following schema:\n\n```json\n{\n    \"id\": 0,\n    \"text\": \"\",\n    \"choices\": [\n        {\n            \"id\": 0,\n            \"text\": \"\",\n            \"is_correct\": true\n        }\n    ]\n}\n```\nThis JSON schema represents the structure of the response object, including the question ID, text, and choices with their respective IDs, text, and correctness indicator.\n"
+							},
+							"response": []
+						},
+						{
+							"name": "questions/{{question_id}}/submit_answer/",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"answer_id\": 11\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_url}}/api/v1/questions/{{question_id}}/submit_answer/",
+								"description": "### Submit Answer\n\nThis endpoint is used to submit an answer for a specific question.\n\n#### Request\n\n- Method: POST\n    \n- URL: {{base_url}}/api/v1/questions/{{question_id}}/submit_answer/\n    \n- Body:\n    \n    - answer_id (integer, required): The ID of the answer being submitted.\n        \n\n#### Response\n\nThe response schema for this request is as follows:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"status\": {\n      \"type\": \"string\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
+							},
+							"response": [
+								{
+									"name": "COrrect Submission",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"answer_id\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "http://127.0.0.1:8000/api/v1/questions/1/submit_answer/"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Incorrect Submission",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"answer_id\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/questions/{{question_id}}/submit_answer/"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Incorrect Question",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"answer_id\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/questions/{{question_id}}/submit_answer/"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Incorrect Choice",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"answer_id\": 3\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{base_url}}/api/v1/questions/{{question_id}}/submit_answer/"
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "practice-history",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_url}}/api/v1/practice-history/",
+								"description": "### Get Practice History\n\nThis endpoint retrieves the practice history for the user.\n\n#### Request\n\n- Method: GET\n    \n- URL: `{{base_url}}/api/v1/practice-history/`\n    \n\n#### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\nExample Response Body:\n\n``` json\n[\n    {\n        \"id\": 0,\n        \"question_text\": \"\",\n        \"chosen_answer_text\": \"\",\n        \"is_correct\": true,\n        \"attempted_at\": \"\"\n    }\n]\n\n ```"
+							},
+							"response": []
+						}
+					],
+					"description": "This folder is designed to dynamically add bearer tokens to the headers of requests using scripts.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									"pm.request.headers.add({\r",
+									"    key: 'Authorization',\r",
+									"    value: `Bearer ${pm.collectionVariables.get(\"access_token\")}`\r",
+									"});"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"packages": {},
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "token/",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseBody = pm.response.json();\r",
+									"\r",
+									"pm.collectionVariables.set('access_token', responseBody.access)\r",
+									"pm.collectionVariables.set('refresh_token', responseBody.refresh)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/api/v1/token/",
+						"description": "### Create Token\n\nThis endpoint allows users to obtain a token by providing their username and password.\n\n**Request Body**\n\n- `username` (string): The username of the user.\n    \n- `password` (string): The password of the user.\n    \n\n**Response**  \nThe response will include the token generated for the user, which can be used for authentication purposes."
+					},
+					"response": []
+				}
+			],
+			"description": "This is the root directory with the base url [http://127.0.0.1:8000](http://127.0.0.1:8000/)"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000"
+		},
+		{
+			"key": "question_id",
+			"value": "1"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		}
+	]
+}
