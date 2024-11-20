@@ -66,3 +66,11 @@ This is a simplified API implementation for a platform where students can practi
    ```
 
 6. Access the API at http://127.0.0.1:8000
+
+
+7. Command to run test cases:
+   
+   ```bash
+   python manage.py test
+
+   ```
