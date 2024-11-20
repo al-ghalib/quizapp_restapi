@@ -7,7 +7,7 @@ from django.utils import timezone
 from quiz.models import Question, Choice
 from .models import PracticeHistory
 from .serializers import *
-
+from core.defines import *
 
 @api_view(['POST'])
 def register(request):
@@ -19,7 +19,7 @@ def register(request):
             serializer.save()
 
             return Response({
-                'detail': 'User registered successfully.'
+                'detail': USER_REG_SUCCESS
             }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -39,7 +39,7 @@ def get_question_details(request, question_id):
     try:
         question = Question.objects.get(id=question_id)
     except Question.DoesNotExist:
-        raise NotFound(detail="Question not found")
+        raise NotFound(detail=QUESTION_NOT_FOUND)
 
     serializer = QuestionSerializer(question)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -60,21 +60,21 @@ def create_question(request):
 def submit_answer(request, question_id):
     # Submitting answer to check if it is correct
     if not request.user.is_authenticated:
-        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"detail": AUTH_CREDENTIALS_MISSING}, status=status.HTTP_401_UNAUTHORIZED)
 
     answer_id = request.data.get('answer_id')
 
     if not answer_id:
-        raise ValidationError("Answer ID is required.")
+        raise ValidationError(ANSWER_ID_REQUIRED)
 
     try:
         question = Question.objects.get(id=question_id)
         choice = Choice.objects.get(id=answer_id, question=question)
     except Question.DoesNotExist:
-        raise NotFound(detail="Question not found.")
+        raise NotFound(detail=QUESTION_NOT_FOUND)
     except Choice.DoesNotExist:
         raise NotFound(
-            detail="Choice not found or choice not valid for this question.")
+            detail=CHOICE_NOT_FOUND)
 
     is_correct = choice.is_correct
 
@@ -98,7 +98,7 @@ def submit_answer(request, question_id):
 def get_practice_history(request):
     # Retrieve the practice history of the authenticated user
     if not request.user.is_authenticated:
-        return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"detail": AUTH_CREDENTIALS_MISSING}, status=status.HTTP_401_UNAUTHORIZED)
 
     history = PracticeHistory.objects.filter(
         user=request.user).order_by('-attempted_at')

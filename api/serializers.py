@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from quiz.models import Question, Choice
 from .models import PracticeHistory
+from core.defines import *
 
 class PracticeHistorySerializer(serializers.ModelSerializer):
     question_text = serializers.CharField(source='question.text')
@@ -10,28 +11,22 @@ class PracticeHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PracticeHistory
-        fields = ['id', 'question_text', 'chosen_answer_text',
-                  'is_correct', 'attempted_at']
+        fields = ['id', 'question_text', 'chosen_answer_text', 'is_correct', 'attempted_at']
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True, style={'input_type': 'password'})
-    password2 = serializers.CharField(
-        write_only=True, style={'input_type': 'password'})
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'password2']
 
     def validate(self, attrs):
-        # Checking two password match
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {"password": "The two password fields must match."})
+            raise serializers.ValidationError({"password": PASSWORDS_MISMATCH})
         return attrs
 
     def create(self, validated_data):
-        # Creating a new user with the validated data
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -53,13 +48,10 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def validate_choices(self, value):
         if len(value) < 2:
-            raise serializers.ValidationError(
-                "A question must have at least two choices.")
-        correct_choices = [
-            choice for choice in value if choice.get('is_correct')]
+            raise serializers.ValidationError(QUESTION_MIN_CHOICES)
+        correct_choices = [choice for choice in value if choice.get('is_correct')]
         if len(correct_choices) != 1:
-            raise serializers.ValidationError(
-                "There must be exactly one correct choice.")
+            raise serializers.ValidationError(EXACTLY_ONE_CORRECT_CHOICE)
         return value
 
     def create(self, validated_data):
@@ -67,9 +59,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         question = Question.objects.create(**validated_data)
 
         # Bulk create choices for the question
-        choices = [
-            Choice(question=question, **choice_data) for choice_data in choices_data
-        ]
+        choices = [Choice(question=question, **choice_data) for choice_data in choices_data]
         Choice.objects.bulk_create(choices)
 
         return question
